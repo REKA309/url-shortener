@@ -222,15 +222,25 @@ app.post('/shortUrl',async(req,res)=>{
 app.get('/viewshortUrl/:useremail', async(req,res)=>{
   try {
     const { useremail } = req.params;
-    const data = await Login.findOne({ useremail });
-    if (!data) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    const shortUrls = data.shortUrl;
-    res.status(200).json( shortUrls );
-  } catch (error) {
-    console.error('Error retrieving short URLs:', error);
-    res.status(500).json({ error: 'Error retrieving short URLs' });
+    const userExistingData = await Login.findOne({
+      useremail:useremail
+    });
+    if(userExistingData?._id)
+      {
+        const shortUrls = userExistingData.shortUrl;
+        res.status(200).json( shortUrls );
+      }
+      else{
+        return res.status(404).json({
+          success: false,
+          message: "User account doesnt exists, create new account!!!",
+        });
+      }
+  }
+  catch(error)
+  {
+    console.error('Error updating data in MongoDB:', error);
+    res.status(500).json({ error: 'Error updating data in MongoDB' });
   }
 })
 const port=process.env.PORT
